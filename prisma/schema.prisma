@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPERADMIN
+}
+
+enum ShoeStatus {
+  NORMAL 
+  DISCOUNT
+  BESTSELLER
+}
+
+model User {
+  id          Int       @id   @default(autoincrement())
+  email       String    @unique
+  name        String? 
+  password    String
+  role        Role      @default(USER)
+  phone       String?
+  avatarUrl   String?
+  isVerified  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  address     Address[]
+}
+
+model Brand {
+  id      Int     @id   @default(autoincrement())
+  name    String
+  imgUrl  String
+  shoe    Shoe[]
+}
+
+model Category {
+  id          Int     @id   @default(autoincrement())
+  name        String
+  imgUrl      String 
+  shoe        Shoe[] 
+  subCategory SubCategory[]
+}
+
+model SubCategory {
+  id          Int       @id   @default(autoincrement())
+  name        String
+  shoe        Shoe[]
+  categoryId  Int
+  category    Category  @relation(fields: [categoryId], references: [id])
+}
+
+model Shoe {
+  id            Int         @id   @default(autoincrement())
+  name          String
+  description   String
+  price         Int
+  weight        Int
+  status        ShoeStatus  @default(NORMAL)
+  shoeImage     ShoeImage[]
+  stock         Stock[]
+  brandId       Int
+  categoryId    Int
+  subCategoryId Int
+  brand         Brand       @relation(fields: [brandId], references: [id])
+  category      Category    @relation(fields: [categoryId], references: [id])
+  subCategory   SubCategory @relation(fields: [subCategoryId], references: [id])
+}
+
+model ShoeImage {
+  id      Int      @id   @default(autoincrement())
+  imgUrl  String
+  shoeId  Int
+  shoe    Shoe    @relation(fields: [shoeId], references: [id], onDelete: Cascade)
+}
+
+model ShoeSize {
+  id    Int   @id   @default(autoincrement())
+  size  String
+  stock Stock[]
+}
+
+model Stock {
+  id            Int       @id   @default(autoincrement())
+  stock         Int
+  shoeId        Int
+  sizeId        Int
+  booked_stock  Int       @default(0)
+  shoe          Shoe      @relation(fields: [shoeId], references: [id])
+  size          ShoeSize  @relation(fields: [sizeId], references: [id])
+}
+
+model Province {
+  province_id   Int   @id   @default(autoincrement())
+  province      String
+  cities        City[]
+}
+
+model City {
+  city_id       Int       @id   @default(autoincrement())
+  city_name     String
+  province_id   Int
+  province      Province  @relation(fields: [province_id], references: [province_id], onDelete: Cascade)
+  type          String
+  postcal_code  String
+  address       Address[]
+}
+
+model Address {
+  id              Int     @id   @default(autoincrement())
+  title           String
+  name            String
+  phone           String
+  address         String
+  addressDetails  String
+  cityId          Int
+  city            City    @relation(fields: [cityId], references: [city_id])
+  postcode        Int
+  latitude        String
+  longtitude      String
+  isPrimary       Boolean
+  userId          Int
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
