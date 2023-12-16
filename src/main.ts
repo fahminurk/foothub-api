@@ -11,6 +11,7 @@ async function bootstrap() {
     origin: ['http://localhost:3000'],
   });
 
+  // app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
