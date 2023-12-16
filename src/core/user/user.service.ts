@@ -6,6 +6,7 @@ import {
 import { User } from '@prisma/client';
 import { hash } from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UpdateUserDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -30,7 +31,7 @@ export class UserService {
     return user;
   }
 
-  async createUser(data: { email: string; password: string }): Promise<User> {
+  async createUser(data: Partial<User>): Promise<User> {
     const existing = await this.getUserByEmail(data.email);
 
     if (existing) throw new ConflictException('User already exists');
@@ -39,7 +40,12 @@ export class UserService {
 
     const user = await this.db.user.create({
       data: {
-        ...data,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        role: data.role,
+        isVerified: data.isVerified,
+        avatarUrl: data.avatarUrl,
         password: hashedPassword,
       },
     });
@@ -56,7 +62,7 @@ export class UserService {
     return this.db.user.delete({ where: { id } });
   }
 
-  async updateUser(id: number, data: Partial<User>): Promise<User> {
+  async updateUser(id: number, data: UpdateUserDto): Promise<User> {
     const user = await this.getUserById(id);
 
     if (!user) throw new NotFoundException('User not found');
