@@ -31,7 +31,10 @@ export class UserService {
     return user;
   }
 
-  async createUser(data: Partial<User>): Promise<User> {
+  async createUser(
+    data: Partial<User>,
+    file?: Express.Multer.File,
+  ): Promise<User> {
     const existing = await this.getUserByEmail(data.email);
 
     if (existing) throw new ConflictException('User already exists');
@@ -45,7 +48,7 @@ export class UserService {
         phone: data.phone,
         role: data.role,
         isVerified: data.isVerified,
-        avatarUrl: data.avatarUrl,
+        avatarUrl: file.filename ? 'static/user/' + file?.filename : null,
         password: hashedPassword,
       },
     });
@@ -62,11 +65,21 @@ export class UserService {
     return this.db.user.delete({ where: { id } });
   }
 
-  async updateUser(id: number, data: UpdateUserDto): Promise<User> {
+  async updateUser(
+    id: number,
+    data: Partial<User>,
+    file: Express.Multer.File,
+  ): Promise<User> {
     const user = await this.getUserById(id);
 
     if (!user) throw new NotFoundException('User not found');
 
-    return this.db.user.update({ where: { id }, data });
+    return this.db.user.update({
+      where: { id },
+      data: {
+        ...data,
+        avatarUrl: 'static/user/' + file?.filename,
+      },
+    });
   }
 }
