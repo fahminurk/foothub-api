@@ -27,9 +27,9 @@ export class AuthService {
 
     delete user.password;
 
-    const token = this.jwtService.sign(user);
+    const accessToken = this.jwtService.sign(user);
 
-    return token;
+    return { user, accessToken };
   }
 
   async signUp(data: RegisterDto) {
