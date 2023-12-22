@@ -11,6 +11,8 @@ export class ShoeService {
     brand?: string;
     category?: string;
     subcategory?: string;
+    orderBy?: 'asc' | 'desc';
+    sortBy?: string;
   }): Promise<Shoe[]> {
     const whereClause: { OR?: any[] } = {};
 
@@ -37,6 +39,8 @@ export class ShoeService {
 
     return await this.db.shoe.findMany({
       where: whereClause,
+      orderBy: { [query.sortBy || 'name']: query.orderBy || 'asc' },
+
       include: {
         brand: true,
         category: true,
