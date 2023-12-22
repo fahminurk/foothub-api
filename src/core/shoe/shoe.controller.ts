@@ -7,6 +7,7 @@ import {
   Param,
   ParseFilePipe,
   Post,
+  Query,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
@@ -20,8 +21,12 @@ export class ShoeController {
   constructor(private readonly shoeService: ShoeService) {}
 
   @Get()
-  findAll() {
-    return this.shoeService.getAllProduct();
+  findAll(
+    @Query() query: { brand?: string; category?: string; subcategory?: string },
+  ) {
+    console.log(query);
+
+    return this.shoeService.getAllProduct(query);
   }
 
   @Get(':id')
