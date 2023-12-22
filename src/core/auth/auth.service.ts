@@ -44,6 +44,8 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    return user;
+    const accessToken = this.jwtService.sign(user);
+
+    return { user, accessToken };
   }
 }
