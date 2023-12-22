@@ -7,10 +7,39 @@ import { CreateShoeDto } from './shoe.dto';
 export class ShoeService {
   constructor(private readonly db: PrismaService) {}
 
-  async getAllProduct(): Promise<Shoe[]> {
+  async getAllProduct(query: {
+    brand?: string;
+    category?: string;
+    subcategory?: string;
+  }): Promise<Shoe[]> {
+    const whereClause: { OR?: any[] } = {};
+
+    if (query.brand) {
+      whereClause.OR = [{ brand: { name: { contains: query.brand } } }];
+    }
+
+    if (query.category && query.subcategory) {
+      whereClause.OR = [
+        ...(whereClause.OR || []),
+        {
+          AND: [
+            { category: { name: { startsWith: query.category } } },
+            { subCategory: { name: { contains: query.subcategory } } },
+          ],
+        },
+      ];
+    } else if (query.category) {
+      whereClause.OR = [
+        ...(whereClause.OR || []),
+        { category: { name: { startsWith: query.category } } },
+      ];
+    }
+
     return await this.db.shoe.findMany({
+      where: whereClause,
       include: {
         brand: true,
+        category: true,
         shoeImage: true,
         subCategory: true,
         stock: true,
