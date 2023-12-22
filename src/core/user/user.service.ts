@@ -6,14 +6,13 @@ import {
 import { User } from '@prisma/client';
 import { hash } from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UpdateUserDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
   constructor(private readonly db: PrismaService) {}
 
   async getAllUsers(): Promise<User[]> {
-    return this.db.user.findMany();
+    return await this.db.user.findMany();
   }
 
   async getUserById(id: number): Promise<User> {
@@ -48,7 +47,7 @@ export class UserService {
         phone: data.phone,
         role: data.role,
         isVerified: data.isVerified,
-        avatarUrl: file.filename ? 'static/user/' + file?.filename : null,
+        avatarUrl: file?.filename ? 'static/user/' + file?.filename : null,
         password: hashedPassword,
       },
     });
