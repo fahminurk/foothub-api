@@ -48,10 +48,10 @@ model Category {
   name        String
   imgUrl      String 
   shoe        Shoe[] 
-  subCategory SubCategory[]
+  subcategory Subcategory[]
 }
 
-model SubCategory {
+model Subcategory {
   id          Int       @id   @default(autoincrement())
   name        String
   shoe        Shoe[]
@@ -70,10 +70,10 @@ model Shoe {
   stock         Stock[]
   brandId       Int
   categoryId    Int
-  subCategoryId Int
+  subcategoryId Int
   brand         Brand       @relation(fields: [brandId], references: [id])
   category      Category    @relation(fields: [categoryId], references: [id])
-  subCategory   SubCategory @relation(fields: [subCategoryId], references: [id])
+  subCategory   Subcategory @relation(fields: [subcategoryId], references: [id])
 }
 
 model ShoeImage {
