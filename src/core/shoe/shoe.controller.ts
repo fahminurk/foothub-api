@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   FileTypeValidator,
   Get,
   MaxFileSizeValidator,
@@ -13,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { ShoeService } from './shoe.service';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+// import { diskStorage } from 'multer';
 import { CreateShoeDto } from './shoe.dto';
 
 @Controller('shoe')
@@ -36,14 +37,18 @@ export class ShoeController {
 
   @Post()
   @UseInterceptors(
-    FilesInterceptor('files', 3, {
-      storage: diskStorage({
-        destination: './uploads/static/shoe',
-        filename(req, file, cb) {
-          cb(null, file.originalname);
-        },
-      }),
-    }),
+    FilesInterceptor(
+      'files',
+      3,
+      // , {
+      //   storage: diskStorage({
+      //     destination: './uploads/static/shoe',
+      //     filename(req, file, cb) {
+      //       cb(null, file.originalname);
+      //     },
+      //   }),
+      // }
+    ),
   )
   create(
     @Body() data: CreateShoeDto,
@@ -58,5 +63,10 @@ export class ShoeController {
     files: Array<Express.Multer.File>,
   ) {
     return this.shoeService.createProduct(data, files);
+  }
+
+  @Delete()
+  delete() {
+    return this.shoeService.deleteAllProduct();
   }
 }
