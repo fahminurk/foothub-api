@@ -2,10 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { Shoe } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateShoeDto } from './shoe.dto';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+// import toSream from ''
 
 @Injectable()
 export class ShoeService {
-  constructor(private readonly db: PrismaService) {}
+  constructor(
+    private readonly db: PrismaService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   async getAllProduct(query: {
     brand?: string;
@@ -52,13 +57,28 @@ export class ShoeService {
   }
 
   async getProductById(id: number): Promise<Shoe> {
-    return await this.db.shoe.findUnique({ where: { id } });
+    return await this.db.shoe.findUnique({
+      include: {
+        brand: true,
+        category: true,
+        shoeImage: true,
+        subCategory: true,
+        stock: true,
+      },
+      where: { id },
+    });
   }
 
   async createProduct(
     data: CreateShoeDto,
     files: Express.Multer.File[],
   ): Promise<Shoe> {
+    const imgUrls = [];
+    for (const file of files) {
+      const res = await this.cloudinaryService.uploadFile(file);
+      imgUrls.push(res.secure_url);
+    }
+
     const shoe = await this.db.shoe.create({
       data: {
         name: data.name,
@@ -73,14 +93,22 @@ export class ShoeService {
     });
 
     await this.db.shoeImage.createMany({
-      data: files.map((file) => {
+      data: imgUrls.map((file) => {
         return {
-          imgUrl: `static/shoe/${file.filename}`,
+          imgUrl: file,
           shoeId: Number(shoe.id),
         };
       }),
     });
 
     return shoe;
+  }
+
+  async deleteProduct(id: number) {
+    return await this.db.shoe.delete({ where: { id } });
+  }
+
+  async deleteAllProduct() {
+    return await this.db.shoe.deleteMany();
   }
 }
