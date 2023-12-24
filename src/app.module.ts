@@ -10,6 +10,7 @@ import { SubCategoryModule } from './core/sub-category/sub-category.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { CloudinaryModule } from './core/cloudinary/cloudinary.module';
+import { StockModule } from './core/stock/stock.module';
 
 @Module({
   imports: [
@@ -20,11 +21,12 @@ import { CloudinaryModule } from './core/cloudinary/cloudinary.module';
     CategoryModule,
     BrandModule,
     SubCategoryModule,
+    CloudinaryModule,
+    StockModule,
     ConfigModule.forRoot({ isGlobal: true }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
     }),
-    CloudinaryModule,
   ],
   controllers: [],
   providers: [],
