@@ -56,17 +56,40 @@ export class ShoeService {
     });
   }
 
-  async getProductById(id: number): Promise<Shoe> {
-    return await this.db.shoe.findUnique({
+  async getProductById(
+    id: number,
+  ): Promise<{ shoe: Shoe; sizeAndStock: { size: string; stock: unknown }[] }> {
+    const shoe = await this.db.shoe.findUnique({
       include: {
         brand: true,
         category: true,
         shoeImage: true,
         subCategory: true,
-        stock: true,
+        stock: {
+          include: { size: true },
+        },
       },
       where: { id },
     });
+
+    const sizeAndStockReduce = shoe.stock.reduce((acc, cur) => {
+      if (acc[cur.size.size]) {
+        acc[cur.size.size] += cur.stock;
+      } else {
+        acc[cur.size.size] = cur.stock;
+      }
+      return acc;
+    }, {});
+
+    console.log(sizeAndStockReduce);
+
+    const sizeAndStock = Object.entries(sizeAndStockReduce).map(
+      ([size, stock]) => ({ size, stock }),
+    );
+
+    console.log(sizeAndStock);
+
+    return { shoe, sizeAndStock };
   }
 
   async createProduct(
@@ -110,5 +133,9 @@ export class ShoeService {
 
   async deleteAllProduct() {
     return await this.db.shoe.deleteMany();
+  }
+
+  async createShoeSize(data: { size: string }) {
+    return await this.db.shoeSize.create({ data });
   }
 }
