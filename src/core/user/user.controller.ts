@@ -41,16 +41,7 @@ export class UserController {
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.Admin)
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads/static/user',
-        filename(req, file, cb) {
-          cb(null, file.originalname);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('file'))
   create(
     @Body() data: CreateUserDto,
     @UploadedFile(

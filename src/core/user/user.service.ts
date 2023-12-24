@@ -6,10 +6,17 @@ import {
 import { User } from '@prisma/client';
 import { hash } from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
+import {
+  CloudinaryResponse,
+  CloudinaryService,
+} from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly db: PrismaService) {}
+  constructor(
+    private readonly db: PrismaService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   async getAllUsers(): Promise<User[]> {
     return await this.db.user.findMany();
@@ -34,9 +41,14 @@ export class UserService {
     data: Partial<User>,
     file?: Express.Multer.File,
   ): Promise<User> {
+    let fileImg: CloudinaryResponse;
     const existing = await this.getUserByEmail(data.email);
 
     if (existing) throw new ConflictException('User already exists');
+
+    if (file) {
+      fileImg = await this.cloudinaryService.uploadFile(file);
+    }
 
     const hashedPassword = await hash(data.password, 10);
 
@@ -47,7 +59,7 @@ export class UserService {
         phone: data.phone,
         role: data.role,
         isVerified: data.isVerified,
-        avatarUrl: file?.filename ? 'static/user/' + file?.filename : null,
+        avatarUrl: fileImg ? fileImg.secure_url : null,
         password: hashedPassword,
       },
     });
