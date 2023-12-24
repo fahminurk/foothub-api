@@ -69,4 +69,9 @@ export class ShoeController {
   delete() {
     return this.shoeService.deleteAllProduct();
   }
+
+  @Post('size')
+  createShoeSize(@Body() data: { size: string }) {
+    return this.shoeService.createShoeSize(data);
+  }
 }
