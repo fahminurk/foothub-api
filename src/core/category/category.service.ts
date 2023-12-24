@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCategoryDto } from './category.dto';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class CategoryService {
-  constructor(private readonly db: PrismaService) {}
+  constructor(
+    private readonly db: PrismaService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   async getAllCategories() {
     return await this.db.category.findMany({
@@ -17,10 +21,11 @@ export class CategoryService {
   }
 
   async createCategory(data: CreateCategoryDto, file: Express.Multer.File) {
+    const fileImg = await this.cloudinaryService.uploadFile(file);
     return await this.db.category.create({
       data: {
         ...data,
-        imgUrl: file?.filename ? 'static/category/' + file?.filename : null,
+        imgUrl: fileImg ? fileImg.secure_url : null,
       },
     });
   }
