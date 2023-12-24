@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
 import { CreateCategoryDto } from './category.dto';
 
 @Controller('category')
@@ -31,16 +30,7 @@ export class CategoryController {
   }
 
   @Post()
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads/static/category',
-        filename(req, file, cb) {
-          cb(null, file.originalname);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('file'))
   create(
     @Body() data: CreateCategoryDto,
     @UploadedFile(

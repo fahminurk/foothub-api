@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { BrandService } from './brand.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
 import { CreateBrandDto } from './brand.dto';
 
 @Controller('brand')
@@ -31,16 +30,7 @@ export class BrandController {
   }
 
   @Post()
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads/static/brand',
-        filename(req, file, cb) {
-          cb(null, file.originalname);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('file'))
   create(
     @Body() data: CreateBrandDto,
     @UploadedFile(
