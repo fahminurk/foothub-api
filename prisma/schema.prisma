@@ -100,15 +100,15 @@ model Stock {
 }
 
 model Province {
-  province_id   Int   @id   @default(autoincrement())
-  province      String
+  province_id   String   @id  
+  province      String @unique
   cities        City[]
 }
 
 model City {
-  city_id       Int       @id   @default(autoincrement())
-  city_name     String
-  province_id   Int
+  city_id       String       @id  
+  city_name     String    
+  province_id   String
   province      Province  @relation(fields: [province_id], references: [province_id], onDelete: Cascade)
   type          String
   postcal_code  String
@@ -122,9 +122,9 @@ model Address {
   phone           String
   address         String
   addressDetails  String
-  cityId          Int
+  cityId          String
   city            City    @relation(fields: [cityId], references: [city_id])
-  postcode        Int
+  postcal_code    String
   latitude        String
   longtitude      String
   isPrimary       Boolean
