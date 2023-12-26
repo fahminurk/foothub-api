@@ -11,6 +11,9 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { CloudinaryModule } from './core/cloudinary/cloudinary.module';
 import { StockModule } from './core/stock/stock.module';
+import { RajaongkirModule } from './core/rajaongkir/rajaongkir.module';
+import { CityProvinceModule } from './core/city-province/city-province.module';
+import { AddressModule } from './core/address/address.module';
 
 @Module({
   imports: [
@@ -23,6 +26,9 @@ import { StockModule } from './core/stock/stock.module';
     SubCategoryModule,
     CloudinaryModule,
     StockModule,
+    RajaongkirModule,
+    CityProvinceModule,
+    AddressModule,
     ConfigModule.forRoot({ isGlobal: true }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
