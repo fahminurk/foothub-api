@@ -19,4 +19,10 @@ export class CityProvinceService {
       include: { province: true },
     });
   }
+  async getCityById(city_id: string) {
+    return await this.db.city.findMany({
+      where: { city_id },
+      include: { province: true },
+    });
+  }
 }
