@@ -81,13 +81,9 @@ export class ShoeService {
       return acc;
     }, {});
 
-    console.log(sizeAndStockReduce);
-
     const sizeAndStock = Object.entries(sizeAndStockReduce).map(
       ([size, stock]) => ({ size, stock }),
     );
-
-    console.log(sizeAndStock);
 
     return { shoe, sizeAndStock };
   }
