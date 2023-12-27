@@ -122,11 +122,11 @@ model Address {
   phone           String
   address         String
   addressDetails  String
-  cityId          String
-  city            City    @relation(fields: [cityId], references: [city_id])
+  city_id          String
+  city            City    @relation(fields: [city_id], references: [city_id])
   postcal_code    String
-  latitude        String
-  longtitude      String
+  latitude        Int
+  longtitude      Int
   isPrimary       Boolean
   userId          Int
   user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
