@@ -5,5 +5,6 @@ import { CityProvinceController } from './city-province.controller';
 @Module({
   controllers: [CityProvinceController],
   providers: [CityProvinceService],
+  exports: [CityProvinceService],
 })
 export class CityProvinceModule {}
