@@ -33,19 +33,19 @@ export class CreateAddressDto {
 
   @IsNotEmpty()
   @IsString()
-  cityId: string;
+  city_id: string;
 
-  @IsNotEmpty()
-  @IsString()
-  postcal_code: string;
+  // @IsNotEmpty()
+  // @IsString()
+  // postcal_code: string;
 
-  @IsNotEmpty()
-  @IsString()
-  latitude: string;
+  // @IsNotEmpty()
+  // @IsString()
+  // latitude: string;
 
-  @IsNotEmpty()
-  @IsString()
-  longtitude: string;
+  // @IsNotEmpty()
+  // @IsString()
+  // longtitude: string;
 
   @IsNotEmpty()
   @IsBoolean()
