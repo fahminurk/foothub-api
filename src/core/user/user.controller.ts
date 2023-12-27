@@ -20,14 +20,17 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Role } from 'src/common/enum/role.enum';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   @Get()
-  // @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.Admin)
   findAll() {
     return this.userService.getAllUsers();
@@ -65,19 +68,10 @@ export class UserController {
   }
 
   @Patch(':id')
-  // @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin)
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads/static/user',
-        filename(req, file, cb) {
-          cb(null, file.originalname);
-        },
-      }),
-    }),
-  )
-  update(
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin, Role.User)
+  @UseInterceptors(FileInterceptor('file'))
+  async update(
     @Param('id') id: number,
     @Body() data: UpdateUserDto,
     @UploadedFile(
@@ -86,10 +80,24 @@ export class UserController {
           new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
           new FileTypeValidator({ fileType: 'image/*' }),
         ],
+        fileIsRequired: false,
       }),
     )
     file: Express.Multer.File,
   ) {
-    return this.userService.updateUser(id, data, file);
+    console.log(file);
+
+    await this.userService.updateUser(id, data, file);
+
+    const user = await this.userService.getUserById(id);
+
+    if (user.role === 'USER') {
+      delete user.password;
+
+      const accessToken = this.jwtService.sign(user);
+
+      return { user, accessToken };
+    }
+    return user;
   }
 }

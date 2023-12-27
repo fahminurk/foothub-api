@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import { compare, hash } from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterDto } from './dto/auth.dto';
 
@@ -20,8 +20,10 @@ export class AuthService {
     const user = await this.userService.getUserByEmail(email);
 
     if (!user) throw new NotFoundException('user not found');
+    console.log(user.password);
 
-    const isMatch = await compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log(isMatch);
 
     if (!isMatch) throw new UnauthorizedException('invalid password');
 
@@ -37,12 +39,7 @@ export class AuthService {
 
     if (existing) throw new ConflictException('user already exists');
 
-    const hashedPassword = await hash(data.password, 10);
-
-    const user = await this.userService.createUser({
-      ...data,
-      password: hashedPassword,
-    });
+    const user = await this.userService.createUser(data);
 
     const accessToken = this.jwtService.sign(user);
 

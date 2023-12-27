@@ -81,15 +81,20 @@ export class UserService {
     data: Partial<User>,
     file: Express.Multer.File,
   ): Promise<User> {
+    let fileImg: CloudinaryResponse;
     const user = await this.getUserById(id);
 
     if (!user) throw new NotFoundException('User not found');
+
+    if (file) {
+      fileImg = await this.cloudinaryService.uploadFile(file);
+    }
 
     return this.db.user.update({
       where: { id },
       data: {
         ...data,
-        avatarUrl: 'static/user/' + file?.filename,
+        avatarUrl: file && fileImg.secure_url,
       },
     });
   }

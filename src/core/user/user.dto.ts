@@ -50,7 +50,6 @@ export class UpdateUserDto {
   @IsNumberString()
   phone: string;
 
-  @IsNotEmpty()
-  @IsEnum(Role)
-  role?: Role;
+  // @IsEnum(Role)
+  // role?: Role;
 }
