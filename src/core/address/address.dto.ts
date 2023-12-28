@@ -55,20 +55,3 @@ export class CreateAddressDto {
   // @IsNumberString()
   // userId: number;
 }
-
-// model Address {
-//   id              Int     @id   @default(autoincrement())
-//   title           String
-//   name            String
-//   phone           String
-//   address         String
-//   addressDetails  String
-//   cityId          String
-//   city            City    @relation(fields: [cityId], references: [city_id])
-//   postcode        Int
-//   latitude        String
-//   longtitude      String
-//   isPrimary       Boolean
-//   userId          Int
-//   user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-// }

@@ -42,7 +42,7 @@ export class AddressService {
         ...data,
         postcal_code: city[0].postcal_code,
         latitude: res.data.results[0].geometry.lat,
-        longtitude: res.data.results[0].geometry.lng,
+        longitude: res.data.results[0].geometry.lng,
         userId,
       },
     });

@@ -126,7 +126,7 @@ model Address {
   city            City    @relation(fields: [city_id], references: [city_id])
   postcal_code    String
   latitude        Int
-  longtitude      Int
+  longitude       Int
   isPrimary       Boolean
   userId          Int
   user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
