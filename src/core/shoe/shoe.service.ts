@@ -45,7 +45,7 @@ export class ShoeService {
     return await this.db.shoe.findMany({
       where: whereClause,
       orderBy: { [query.sortBy || 'name']: query.orderBy || 'asc' },
-
+      // take: 1,
       include: {
         brand: true,
         category: true,
