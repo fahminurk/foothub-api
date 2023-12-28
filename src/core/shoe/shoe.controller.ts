@@ -29,8 +29,6 @@ export class ShoeController {
   findAll(
     @Query() query: { brand?: string; category?: string; subcategory?: string },
   ) {
-    console.log(query);
-
     return this.shoeService.getAllProduct(query);
   }
 
