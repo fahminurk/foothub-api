@@ -10,12 +10,16 @@ import {
   Post,
   Query,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ShoeService } from './shoe.service';
 import { FilesInterceptor } from '@nestjs/platform-express';
-// import { diskStorage } from 'multer';
 import { CreateShoeDto } from './shoe.dto';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'src/common/enum/role.enum';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('shoe')
 export class ShoeController {
@@ -36,20 +40,9 @@ export class ShoeController {
   }
 
   @Post()
-  @UseInterceptors(
-    FilesInterceptor(
-      'files',
-      3,
-      // , {
-      //   storage: diskStorage({
-      //     destination: './uploads/static/shoe',
-      //     filename(req, file, cb) {
-      //       cb(null, file.originalname);
-      //     },
-      //   }),
-      // }
-    ),
-  )
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @UseInterceptors(FilesInterceptor('files', 3))
   create(
     @Body() data: CreateShoeDto,
     @UploadedFiles(
@@ -66,11 +59,15 @@ export class ShoeController {
   }
 
   @Delete()
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   delete() {
     return this.shoeService.deleteAllProduct();
   }
 
   @Post('size')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   createShoeSize(@Body() data: { size: string }) {
     return this.shoeService.createShoeSize(data);
   }

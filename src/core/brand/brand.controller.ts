@@ -9,11 +9,16 @@ import {
   ParseFilePipe,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { BrandService } from './brand.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateBrandDto } from './brand.dto';
+import { AuthGuard } from '../auth/auth.guard';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'src/common/enum/role.enum';
 
 @Controller('brand')
 export class BrandController {
@@ -30,6 +35,8 @@ export class BrandController {
   }
 
   @Post()
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   @UseInterceptors(FileInterceptor('file'))
   create(
     @Body() data: CreateBrandDto,
@@ -47,6 +54,8 @@ export class BrandController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   delete(@Param('id') id: number) {
     return this.brandService.deleteShoe(id);
   }

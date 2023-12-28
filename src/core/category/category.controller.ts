@@ -9,11 +9,16 @@ import {
   ParseFilePipe,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateCategoryDto } from './category.dto';
+import { AuthGuard } from '../auth/auth.guard';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'src/common/enum/role.enum';
 
 @Controller('category')
 export class CategoryController {
@@ -30,6 +35,8 @@ export class CategoryController {
   }
 
   @Post()
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   @UseInterceptors(FileInterceptor('file'))
   create(
     @Body() data: CreateCategoryDto,
@@ -47,6 +54,8 @@ export class CategoryController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   delete(@Param('id') id: number) {
     return this.categoryService.deleteCategory(id);
   }
