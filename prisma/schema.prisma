@@ -30,23 +30,27 @@ model User {
   role        Role      @default(USER)
   phone       String?
   avatarUrl   String?
+  public_id   String?   
   isVerified  Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   address     Address[]
 }
 
+
 model Brand {
-  id      Int     @id   @default(autoincrement())
-  name    String
-  imgUrl  String
-  shoe    Shoe[]
+  id          Int     @id   @default(autoincrement())
+  name        String
+  imgUrl      String
+  public_id   String
+  shoe        Shoe[]
 }
 
 model Category {
   id          Int     @id   @default(autoincrement())
   name        String
   imgUrl      String 
+  public_id   String
   shoe        Shoe[] 
   subcategory Subcategory[]
 }
@@ -77,10 +81,11 @@ model Shoe {
 }
 
 model ShoeImage {
-  id      Int      @id   @default(autoincrement())
-  imgUrl  String
-  shoeId  Int
-  shoe    Shoe    @relation(fields: [shoeId], references: [id], onDelete: Cascade)
+  id          Int      @id   @default(autoincrement())
+  imgUrl      String
+  public_id   String
+  shoeId      Int
+  shoe        Shoe    @relation(fields: [shoeId], references: [id], onDelete: Cascade)
 }
 
 model ShoeSize {

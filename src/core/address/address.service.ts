@@ -16,7 +16,7 @@ export class AddressService {
   async getAddressUser(userId: number) {
     return this.db.address.findMany({
       where: { userId },
-      include: { city: true },
+      include: { city: { include: { province: true } } },
     });
   }
 

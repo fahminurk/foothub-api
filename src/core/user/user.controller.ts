@@ -31,21 +31,21 @@ export class UserController {
 
   @Get()
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.SuperAdmin)
   findAll() {
     return this.userService.getAllUsers();
   }
 
   @Get(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.SuperAdmin)
   findById(@Param('id') id: number) {
     return this.userService.getUserById(id);
   }
 
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.SuperAdmin)
   @UseInterceptors(FileInterceptor('file'))
   create(
     @Body() data: CreateUserDto,
@@ -64,14 +64,14 @@ export class UserController {
 
   @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.SuperAdmin)
   delete(@Param('id') id: number) {
     return this.userService.deleteUser(id);
   }
 
   @Patch(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin, Role.User)
+  @Roles(Role.SuperAdmin, Role.User)
   @UseInterceptors(FileInterceptor('file'))
   async update(
     @Param('id') id: number,
@@ -87,17 +87,13 @@ export class UserController {
     )
     file: Express.Multer.File,
   ) {
-    console.log(file);
-
     await this.userService.updateUser(id, data, file);
 
     const user = await this.userService.getUserById(id);
 
     if (user.role === 'USER') {
       delete user.password;
-
       const accessToken = this.jwtService.sign(user);
-
       return { user, accessToken };
     }
     return user;

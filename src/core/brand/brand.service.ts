@@ -23,6 +23,7 @@ export class BrandService {
     return await this.db.brand.create({
       data: {
         ...data,
+        public_id: fileImg ? fileImg.public_id : null,
         imgUrl: fileImg ? fileImg.secure_url : null,
       },
     });

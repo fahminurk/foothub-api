@@ -39,7 +39,7 @@ export class ShoeController {
 
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.SuperAdmin)
   @UseInterceptors(FilesInterceptor('files', 3))
   create(
     @Body() data: CreateShoeDto,
@@ -58,14 +58,14 @@ export class ShoeController {
 
   @Delete()
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.SuperAdmin)
   delete() {
     return this.shoeService.deleteAllProduct();
   }
 
   @Post('size')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.SuperAdmin)
   createShoeSize(@Body() data: { size: string }) {
     return this.shoeService.createShoeSize(data);
   }

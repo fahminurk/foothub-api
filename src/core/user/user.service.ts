@@ -59,6 +59,7 @@ export class UserService {
         phone: data.phone,
         role: data.role,
         isVerified: data.isVerified,
+        public_id: fileImg ? fileImg.public_id : null,
         avatarUrl: fileImg ? fileImg.secure_url : null,
         password: hashedPassword,
       },
@@ -88,12 +89,16 @@ export class UserService {
 
     if (file) {
       fileImg = await this.cloudinaryService.uploadFile(file);
+      if (user.public_id) {
+        await this.cloudinaryService.destroyFile(user.public_id);
+      }
     }
 
     return this.db.user.update({
       where: { id },
       data: {
         ...data,
+        public_id: file && fileImg.public_id,
         avatarUrl: file && fileImg.secure_url,
       },
     });

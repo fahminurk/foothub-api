@@ -23,6 +23,11 @@ export class SubCategoryController {
     return this.subCategoryService.getAllSubcategories();
   }
 
+  @Get('category/:id')
+  findByCategory(@Param('id') id: string) {
+    return this.subCategoryService.getSubcategoryByCategory(id);
+  }
+
   @Get(':id')
   findById(@Param('id') id: number) {
     return this.subCategoryService.getSubcategoryById(id);

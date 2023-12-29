@@ -25,6 +25,7 @@ export class CategoryService {
     return await this.db.category.create({
       data: {
         ...data,
+        public_id: fileImg ? fileImg.public_id : null,
         imgUrl: fileImg ? fileImg.secure_url : null,
       },
     });

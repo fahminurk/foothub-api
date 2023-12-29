@@ -16,6 +16,12 @@ export class SubCategoryService {
     return await this.db.subcategory.findUnique({ where: { id } });
   }
 
+  async getSubcategoryByCategory(id: string) {
+    return await this.db.subcategory.findMany({
+      where: { categoryId: Number(id) },
+    });
+  }
+
   async createSubategory(data: CreateSubcategoryDto) {
     return await this.db.subcategory.create({ data });
   }

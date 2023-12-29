@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { Shoe } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateShoeDto } from './shoe.dto';
-import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import {
+  CloudinaryResponse,
+  CloudinaryService,
+} from '../cloudinary/cloudinary.service';
 // import toSream from ''
 
 @Injectable()
@@ -45,7 +48,7 @@ export class ShoeService {
     return await this.db.shoe.findMany({
       where: whereClause,
       orderBy: { [query.sortBy || 'name']: query.orderBy || 'asc' },
-      // take: 1,
+
       include: {
         brand: true,
         category: true,
@@ -92,10 +95,10 @@ export class ShoeService {
     data: CreateShoeDto,
     files: Express.Multer.File[],
   ): Promise<Shoe> {
-    const imgUrls = [];
+    const filesImg: CloudinaryResponse[] = [];
     for (const file of files) {
       const res = await this.cloudinaryService.uploadFile(file);
-      imgUrls.push(res.secure_url);
+      filesImg.push(res);
     }
 
     const shoe = await this.db.shoe.create({
@@ -112,9 +115,10 @@ export class ShoeService {
     });
 
     await this.db.shoeImage.createMany({
-      data: imgUrls.map((file) => {
+      data: filesImg.map((file) => {
         return {
-          imgUrl: file,
+          imgUrl: file.secure_url,
+          public_id: file.public_id,
           shoeId: Number(shoe.id),
         };
       }),
