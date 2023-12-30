@@ -36,7 +36,7 @@ export class CategoryController {
 
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.SuperAdmin)
   @UseInterceptors(FileInterceptor('file'))
   create(
     @Body() data: CreateCategoryDto,
@@ -55,7 +55,7 @@ export class CategoryController {
 
   @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.SuperAdmin)
   delete(@Param('id') id: number) {
     return this.categoryService.deleteCategory(id);
   }

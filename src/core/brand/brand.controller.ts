@@ -36,7 +36,7 @@ export class BrandController {
 
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.SuperAdmin)
   @UseInterceptors(FileInterceptor('file'))
   create(
     @Body() data: CreateBrandDto,
@@ -55,7 +55,7 @@ export class BrandController {
 
   @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.SuperAdmin)
   delete(@Param('id') id: number) {
     return this.brandService.deleteShoe(id);
   }

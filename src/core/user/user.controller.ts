@@ -38,7 +38,7 @@ export class UserController {
 
   @Get(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin, Role.SuperAdmin)
+  @Roles(Role.SuperAdmin)
   findById(@Param('id') id: number) {
     return this.userService.getUserById(id);
   }
