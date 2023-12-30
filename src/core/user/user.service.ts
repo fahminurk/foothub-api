@@ -31,6 +31,7 @@ export class UserService {
     return user;
   }
 
+  // auth
   async getUserByEmail(email: string): Promise<User> {
     const user = await this.db.user.findUnique({ where: { email } });
 
@@ -65,14 +66,17 @@ export class UserService {
       },
     });
 
-    delete user.password;
     return user;
   }
 
-  async deleteUser(id: number): Promise<User> {
+  async deleteUser(id: number) {
     const user = await this.getUserById(id);
 
     if (!user) throw new NotFoundException('User not found');
+
+    if (user.public_id) {
+      await this.cloudinaryService.destroyFile(user.public_id);
+    }
 
     return this.db.user.delete({ where: { id } });
   }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Shoe } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateShoeDto } from './shoe.dto';
@@ -6,7 +6,7 @@ import {
   CloudinaryResponse,
   CloudinaryService,
 } from '../cloudinary/cloudinary.service';
-// import toSream from ''
+import { QueryProduct } from './types';
 
 @Injectable()
 export class ShoeService {
@@ -15,13 +15,7 @@ export class ShoeService {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async getAllProduct(query: {
-    brand?: string;
-    category?: string;
-    subcategory?: string;
-    orderBy?: 'asc' | 'desc';
-    sortBy?: string;
-  }): Promise<Shoe[]> {
+  async getAllProduct(query: QueryProduct): Promise<Shoe[]> {
     const whereClause: { OR?: any[] } = {};
 
     if (query.brand) {
@@ -128,6 +122,20 @@ export class ShoeService {
   }
 
   async deleteProduct(id: number) {
+    const shoe = await this.db.shoe.findUnique({ where: { id } });
+
+    if (!shoe) throw new NotFoundException('Shoe not found');
+
+    const shoeImages = await this.db.shoeImage.findMany({
+      where: {
+        shoeId: Number(shoe.id),
+      },
+    });
+
+    for (const image of shoeImages) {
+      await this.cloudinaryService.destroyFile(image.public_id);
+    }
+
     return await this.db.shoe.delete({ where: { id } });
   }
 
