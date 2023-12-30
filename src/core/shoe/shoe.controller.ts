@@ -20,15 +20,14 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enum/role.enum';
 import { AuthGuard } from '../auth/auth.guard';
+import { QueryProduct } from './types';
 
 @Controller('shoe')
 export class ShoeController {
   constructor(private readonly shoeService: ShoeService) {}
 
   @Get()
-  findAll(
-    @Query() query: { brand?: string; category?: string; subcategory?: string },
-  ) {
+  findAll(@Query() query: QueryProduct) {
     return this.shoeService.getAllProduct(query);
   }
 
