@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateSubcategoryDto } from './subcategory.dto';
 
@@ -23,7 +23,22 @@ export class SubCategoryService {
   }
 
   async createSubategory(data: CreateSubcategoryDto) {
-    return await this.db.subcategory.create({ data });
+    const existing = await this.db.subcategory.findFirst({
+      where: {
+        categoryId: Number(data.categoryId),
+        name: { equals: data.name },
+      },
+    });
+
+    if (existing) throw new BadRequestException('Subcategory already exists');
+    console.log(existing);
+
+    return await this.db.subcategory.create({
+      data: {
+        name: data.name,
+        categoryId: Number(data.categoryId),
+      },
+    });
   }
 
   async deleteSubategory(id: number) {
