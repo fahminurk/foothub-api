@@ -7,11 +7,6 @@ import { HttpModule } from '@nestjs/axios';
 @Module({
   controllers: [AddressController],
   providers: [AddressService],
-  imports: [
-    CityProvinceModule,
-    HttpModule.register({
-      headers: { key: process.env.OPENCAGE_API_KEY },
-    }),
-  ],
+  imports: [CityProvinceModule, HttpModule.register({})],
 })
 export class AddressModule {}
