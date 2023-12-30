@@ -31,11 +31,10 @@ export class AddressService {
           q: `${data.address}, ${city[0].city_name},${city[0].province.province}`,
           countrycode: 'id',
           limit: 1,
-          key: process.env.OpenCage_API_KEY,
+          key: process.env.OPENCAGE_API_KEY,
         },
       },
     );
-    console.log(res.data.results[0]);
 
     return await this.db.address.create({
       data: {
