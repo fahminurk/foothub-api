@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCategoryDto } from './category.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
@@ -19,9 +23,20 @@ export class CategoryService {
   async getCategoryById(id: number) {
     return await this.db.category.findUnique({ where: { id } });
   }
+  async getCategoryByName(name: string) {
+    return await this.db.category.findFirst({
+      where: { name: { equals: name } },
+    });
+  }
 
   async createCategory(data: CreateCategoryDto, file: Express.Multer.File) {
+    const existingCategory = await this.getCategoryByName(data.name);
+
+    if (existingCategory)
+      throw new BadRequestException('Category already exists');
+
     const fileImg = await this.cloudinaryService.uploadFile(file);
+
     return await this.db.category.create({
       data: {
         ...data,
@@ -32,6 +47,14 @@ export class CategoryService {
   }
 
   async deleteCategory(id: number) {
+    const category = await this.getCategoryById(id);
+
+    if (!category) throw new NotFoundException('Category not found');
+
+    if (category.public_id) {
+      await this.cloudinaryService.destroyFile(category.public_id);
+    }
+
     return await this.db.category.delete({ where: { id } });
   }
 }
