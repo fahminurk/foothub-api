@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Shoe } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateShoeDto } from './shoe.dto';
@@ -17,39 +21,52 @@ export class ShoeService {
 
   async getAllProduct(query: QueryProduct): Promise<Shoe[]> {
     const whereClause: { OR?: any[] } = {};
-    const asd = query.search?.replace(/ /g, ' & ');
+    const { brand, category, orderBy, search, sortBy, subcategory } = query;
+    const asd = search?.replace(/ /g, ' & ');
 
-    if (query.brand) {
-      whereClause.OR = [{ brand: { name: { contains: query.brand } } }];
-    } else if (query.search) {
+    if (brand) {
+      whereClause.OR = [{ brand: { name: { contains: brand } } }];
+    } else if (search) {
       whereClause.OR = [
-        { name: { search: asd, mode: 'insensitive' } },
-        { brand: { name: { search: asd, mode: 'insensitive' } } },
-        { subCategory: { name: { search: asd, mode: 'insensitive' } } },
-        { category: { name: { search: asd, mode: 'insensitive' } } },
+        { name: { contains: asd, mode: 'insensitive' } },
+        { brand: { name: { contains: asd, mode: 'insensitive' } } },
+        { subCategory: { name: { contains: asd, mode: 'insensitive' } } },
+        { category: { name: { contains: asd, mode: 'insensitive' } } },
       ];
     }
 
-    if (query.category && query.subcategory) {
+    if (category && subcategory) {
       whereClause.OR = [
         ...(whereClause.OR || []),
         {
           AND: [
-            { category: { name: { startsWith: query.category } } },
-            { subCategory: { name: { contains: query.subcategory } } },
+            {
+              category: {
+                name: { startsWith: category, mode: 'insensitive' },
+              },
+            },
+            {
+              subCategory: {
+                name: { contains: subcategory, mode: 'insensitive' },
+              },
+            },
           ],
         },
       ];
-    } else if (query.category) {
+    } else if (category) {
       whereClause.OR = [
         ...(whereClause.OR || []),
-        { category: { name: { startsWith: query.category } } },
+        {
+          category: {
+            name: { startsWith: category, mode: 'insensitive' },
+          },
+        },
       ];
     }
 
     return await this.db.shoe.findMany({
       where: whereClause,
-      orderBy: { [query.sortBy || 'name']: query.orderBy || 'asc' },
+      orderBy: { [sortBy || 'name']: orderBy || 'asc' },
 
       include: {
         brand: true,
@@ -152,6 +169,16 @@ export class ShoeService {
   }
 
   async createShoeSize(data: { size: string }) {
+    const existingSize = await this.db.shoeSize.findFirst({
+      where: { size: { equals: data.size, mode: 'insensitive' } },
+    });
+
+    if (existingSize) throw new BadRequestException('Size already exists');
+
     return await this.db.shoeSize.create({ data });
+  }
+
+  async getAllSize() {
+    return await this.db.shoeSize.findMany();
   }
 }
