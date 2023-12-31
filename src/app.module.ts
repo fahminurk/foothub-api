@@ -14,6 +14,7 @@ import { StockModule } from './core/stock/stock.module';
 import { RajaongkirModule } from './core/rajaongkir/rajaongkir.module';
 import { CityProvinceModule } from './core/city-province/city-province.module';
 import { AddressModule } from './core/address/address.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -34,7 +35,7 @@ import { AddressModule } from './core/address/address.module';
       rootPath: join(__dirname, '..', 'uploads'),
     }),
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}
