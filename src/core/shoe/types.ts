@@ -4,4 +4,5 @@ export type QueryProduct = {
   subcategory?: string;
   orderBy?: 'asc' | 'desc';
   sortBy?: string;
+  search?: string;
 };
