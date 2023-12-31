@@ -22,7 +22,6 @@ export class AddressService {
 
   async createAddress(data: CreateAddressDto, userId: number) {
     const city = await this.CityProvinceService.getCityById(data.city_id);
-    console.log(city);
 
     const res = await this.httpService.axiosRef.get(
       'https://api.opencagedata.com/geocode/v1/json',
@@ -45,7 +44,6 @@ export class AddressService {
         userId,
       },
     });
-    return;
   }
 
   async deleteAddress(id: number) {
