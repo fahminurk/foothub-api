@@ -4,6 +4,7 @@ import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enum/role.enum';
+import { CreateStockDto } from './stock.dto';
 
 @Controller('stock')
 export class StockController {
@@ -16,8 +17,8 @@ export class StockController {
 
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin)
-  createStock(@Body() data: { shoeId: number; sizeId: number; stock: number }) {
+  @Roles(Role.SuperAdmin)
+  createStock(@Body() data: CreateStockDto) {
     return this.stockService.createStock(data);
   }
 }
