@@ -33,3 +33,9 @@ export class CreateShoeDto {
   @IsNumberString()
   subcategoryId: number;
 }
+
+export class CreateSizeDto {
+  @IsNotEmpty()
+  @IsNumberString()
+  size: string;
+}
