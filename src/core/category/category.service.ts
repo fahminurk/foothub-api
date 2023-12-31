@@ -25,7 +25,7 @@ export class CategoryService {
   }
   async getCategoryByName(name: string) {
     return await this.db.category.findFirst({
-      where: { name: { equals: name } },
+      where: { name: { equals: name, mode: 'insensitive' } },
     });
   }
 

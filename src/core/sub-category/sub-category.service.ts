@@ -26,12 +26,11 @@ export class SubCategoryService {
     const existing = await this.db.subcategory.findFirst({
       where: {
         categoryId: Number(data.categoryId),
-        name: { equals: data.name },
+        name: { equals: data.name, mode: 'insensitive' },
       },
     });
 
     if (existing) throw new BadRequestException('Subcategory already exists');
-    console.log(existing);
 
     return await this.db.subcategory.create({
       data: {

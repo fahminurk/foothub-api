@@ -24,7 +24,7 @@ export class BrandService {
 
   async getBrandByName(name: string) {
     return await this.db.brand.findFirst({
-      where: { name: { equals: name } },
+      where: { name: { equals: name, mode: 'insensitive' } },
     });
   }
 
@@ -45,10 +45,8 @@ export class BrandService {
 
   async deleteShoe(id: number) {
     const brand = await this.getBrandById(id);
-    const existingBrand = await this.getBrandByName(brand.name);
 
     if (!brand) throw new NotFoundException('Brand not found');
-    if (existingBrand) throw new BadRequestException('Brand already exists');
 
     if (brand.public_id) {
       await this.cloudinaryService.destroyFile(brand.public_id);
