@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
 }
 
 datasource db {
@@ -78,6 +79,8 @@ model Shoe {
   brand         Brand       @relation(fields: [brandId], references: [id])
   category      Category    @relation(fields: [categoryId], references: [id])
   subCategory   Subcategory @relation(fields: [subcategoryId], references: [id])
+
+  @@index([name])
 }
 
 model ShoeImage {
