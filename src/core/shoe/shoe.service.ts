@@ -17,9 +17,17 @@ export class ShoeService {
 
   async getAllProduct(query: QueryProduct): Promise<Shoe[]> {
     const whereClause: { OR?: any[] } = {};
+    const asd = query.search?.replace(/ /g, ' & ');
 
     if (query.brand) {
       whereClause.OR = [{ brand: { name: { contains: query.brand } } }];
+    } else if (query.search) {
+      whereClause.OR = [
+        { name: { search: asd, mode: 'insensitive' } },
+        { brand: { name: { search: asd, mode: 'insensitive' } } },
+        { subCategory: { name: { search: asd, mode: 'insensitive' } } },
+        { category: { name: { search: asd, mode: 'insensitive' } } },
+      ];
     }
 
     if (query.category && query.subcategory) {
