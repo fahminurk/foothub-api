@@ -107,4 +107,35 @@ export class UserService {
       },
     });
   }
+
+  async createSuper(
+    data: Partial<User>,
+    file?: Express.Multer.File,
+  ): Promise<User> {
+    let fileImg: CloudinaryResponse;
+    const existing = await this.getUserByEmail(data.email);
+
+    if (existing) throw new ConflictException('User already exists');
+
+    if (file) {
+      fileImg = await this.cloudinaryService.uploadFile(file);
+    }
+
+    const hashedPassword = await hash(data.password, 10);
+
+    const user = await this.db.user.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        role: 'SUPERADMIN',
+        isVerified: true,
+        public_id: fileImg ? fileImg.public_id : null,
+        avatarUrl: fileImg ? fileImg.secure_url : null,
+        password: hashedPassword,
+      },
+    });
+
+    return user;
+  }
 }

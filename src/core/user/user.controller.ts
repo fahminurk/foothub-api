@@ -98,4 +98,22 @@ export class UserController {
     }
     return user;
   }
+
+  @Post('super')
+  @UseInterceptors(FileInterceptor('file'))
+  createSuper(
+    @Body() data: CreateUserDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: 'image/*' }),
+        ],
+        fileIsRequired: false,
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    return this.userService.createSuper(data, file);
+  }
 }
