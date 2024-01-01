@@ -25,8 +25,6 @@ export class AddressController {
   @Roles(Role.User)
   create(@Body() data: CreateAddressDto, @Req() req: Express.Request) {
     const user = req.user as PayloadJwt;
-    console.log(user);
-
     return this.addressService.createAddress(data, user.id);
   }
 

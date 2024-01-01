@@ -49,11 +49,4 @@ export class AddressService {
   async deleteAddress(id: number) {
     return await this.db.address.delete({ where: { id } });
   }
-
-  // async updateAddress(id: number, data: Partial<CreateAddressDto>) {
-  //   return await this.db.address.update({
-  //     where: {},
-  //     data,
-  //   });
-  // }
 }
