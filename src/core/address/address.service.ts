@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAddressDto } from './address.dto';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -17,6 +17,7 @@ export class AddressService {
     return this.db.address.findMany({
       where: { userId },
       include: { city: { include: { province: true } } },
+      orderBy: { ['isPrimary']: 'desc' },
     });
   }
 
@@ -35,9 +36,18 @@ export class AddressService {
       },
     );
 
+    const addressCheck = await this.getAddressUser(userId);
+    const isPrimary = addressCheck.length > 0 ? data.isPrimary : true;
+
+    if (isPrimary && addressCheck.length > 0) {
+      const addressPrimary = await this.primaryChecker(userId);
+      await this.updatePrimary(addressPrimary.id);
+    }
+
     return await this.db.address.create({
       data: {
         ...data,
+        isPrimary,
         postcal_code: city[0].postcal_code,
         latitude: res.data.results[0].geometry.lat,
         longitude: res.data.results[0].geometry.lng,
@@ -46,7 +56,83 @@ export class AddressService {
     });
   }
 
-  async deleteAddress(id: number) {
+  async deleteAddress(id: number, userId: number) {
+    const addressToDelete = await this.db.address.findUnique({
+      where: { id },
+    });
+
+    if (!addressToDelete) throw new BadRequestException('address not found');
+
+    if (addressToDelete.isPrimary) {
+      const otherAddress = await this.db.address.findFirst({
+        where: { userId, NOT: { id: addressToDelete.id } },
+      });
+
+      if (otherAddress) {
+        await this.db.address.update({
+          where: { id: otherAddress.id },
+          data: { isPrimary: true },
+        });
+      }
+    }
     return await this.db.address.delete({ where: { id } });
+  }
+
+  async updateAddress(id: number, data: CreateAddressDto, userId: number) {
+    const city = await this.CityProvinceService.getCityById(data.city_id);
+
+    const res = await this.httpService.axiosRef.get(
+      'https://api.opencagedata.com/geocode/v1/json',
+      {
+        params: {
+          q: `${data.address}, ${city[0].city_name},${city[0].province.province}`,
+          countrycode: 'id',
+          limit: 1,
+          key: process.env.OPENCAGE_API_KEY,
+        },
+      },
+    );
+
+    const checkPrimary = await this.primaryChecker(userId);
+    const checkAddress = await this.db.address.findUnique({
+      where: { id },
+    });
+
+    if (!data.isPrimary && id == checkPrimary.id) {
+      throw new BadRequestException('you need  1 default address');
+    } else if (data.isPrimary && checkPrimary.id != checkAddress.id) {
+      await this.editPrimary(userId, checkPrimary.id);
+    }
+
+    return await this.db.address.update({
+      where: { id },
+      data: {
+        ...data,
+        isPrimary: data.isPrimary,
+        postcal_code: city[0].postcal_code,
+        latitude: res.data.results[0].geometry.lat,
+        longitude: res.data.results[0].geometry.lng,
+      },
+    });
+  }
+
+  async primaryChecker(userId: number) {
+    return await this.db.address.findFirst({
+      where: { isPrimary: true, userId },
+    });
+  }
+
+  async updatePrimary(id: number) {
+    return await this.db.address.update({
+      where: { id },
+      data: { isPrimary: false },
+    });
+  }
+
+  async editPrimary(userId: number, id: number) {
+    return this.db.address.update({
+      where: { id, userId, isPrimary: true },
+      data: { isPrimary: false },
+    });
   }
 }

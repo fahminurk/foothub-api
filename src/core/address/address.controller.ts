@@ -7,6 +7,7 @@ import {
   Get,
   Delete,
   Param,
+  Patch,
 } from '@nestjs/common';
 import { AddressService } from './address.service';
 import { AuthGuard } from '../auth/auth.guard';
@@ -40,6 +41,19 @@ export class AddressController {
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.User)
   delete(@Req() req: Express.Request, @Param('id') id: number) {
-    return this.addressService.deleteAddress(id);
+    const user = req.user as PayloadJwt;
+    return this.addressService.deleteAddress(id, user.id);
+  }
+
+  @Patch(':id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.User)
+  update(
+    @Body() data: CreateAddressDto,
+    @Param('id') id: number,
+    @Req() req: Express.Request,
+  ) {
+    const user = req.user as PayloadJwt;
+    return this.addressService.updateAddress(id, data, user.id);
   }
 }
