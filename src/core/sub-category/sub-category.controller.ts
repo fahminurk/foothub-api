@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -35,15 +36,22 @@ export class SubCategoryController {
 
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.SuperAdmin)
   create(@Body() data: CreateSubcategoryDto) {
     return this.subCategoryService.createSubategory(data);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.SuperAdmin)
   delete(@Param('id') id: number) {
     return this.subCategoryService.deleteSubategory(id);
+  }
+
+  @Patch(':id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.SuperAdmin)
+  update(@Param('id') id: number, @Body() data: CreateSubcategoryDto) {
+    return this.subCategoryService.updateSubategory(id, data);
   }
 }

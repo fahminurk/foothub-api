@@ -40,6 +40,16 @@ export class SubCategoryService {
     });
   }
 
+  async updateSubategory(id: number, data: CreateSubcategoryDto) {
+    return await this.db.subcategory.update({
+      where: { id },
+      data: {
+        name: data.name,
+        categoryId: Number(data.categoryId),
+      },
+    });
+  }
+
   async deleteSubategory(id: number) {
     return await this.db.subcategory.delete({ where: { id } });
   }
