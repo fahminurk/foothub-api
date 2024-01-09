@@ -12,6 +12,16 @@ import {
 } from '../cloudinary/cloudinary.service';
 import { QueryProduct } from './types';
 
+const includeOptions = {
+  brand: true,
+  category: true,
+  shoeImage: true,
+  subCategory: true,
+  stock: {
+    include: { size: true },
+  },
+};
+
 @Injectable()
 export class ShoeService {
   constructor(
@@ -41,9 +51,7 @@ export class ShoeService {
         {
           AND: [
             {
-              category: {
-                name: { startsWith: category, mode: 'insensitive' },
-              },
+              category: { name: { startsWith: category, mode: 'insensitive' } },
             },
             {
               subCategory: {
@@ -56,9 +64,14 @@ export class ShoeService {
     } else if (category) {
       whereClause.OR = [
         ...(whereClause.OR || []),
+        { category: { name: { startsWith: category, mode: 'insensitive' } } },
+      ];
+    } else if (subcategory) {
+      whereClause.OR = [
+        ...(whereClause.OR || []),
         {
-          category: {
-            name: { startsWith: category, mode: 'insensitive' },
+          subCategory: {
+            name: { startsWith: subcategory, mode: 'insensitive' },
           },
         },
       ];
@@ -67,14 +80,7 @@ export class ShoeService {
     return await this.db.shoe.findMany({
       where: whereClause,
       orderBy: { [sortBy || 'name']: orderBy || 'asc' },
-
-      include: {
-        brand: true,
-        category: true,
-        shoeImage: true,
-        subCategory: true,
-        stock: true,
-      },
+      include: includeOptions,
     });
   }
 
@@ -82,15 +88,7 @@ export class ShoeService {
     id: number,
   ): Promise<{ shoe: Shoe; sizeAndStock: { size: string; stock: unknown }[] }> {
     const shoe = await this.db.shoe.findUnique({
-      include: {
-        brand: true,
-        category: true,
-        shoeImage: true,
-        subCategory: true,
-        stock: {
-          include: { size: true },
-        },
-      },
+      include: includeOptions,
       where: { id },
     });
 
@@ -162,10 +160,6 @@ export class ShoeService {
     }
 
     return await this.db.shoe.delete({ where: { id } });
-  }
-
-  async deleteAllProduct() {
-    return await this.db.shoe.deleteMany();
   }
 
   async createShoeSize(data: { size: string }) {

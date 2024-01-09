@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   FileTypeValidator,
   Get,
   MaxFileSizeValidator,
@@ -59,12 +60,12 @@ export class ShoeController {
     return this.shoeService.createProduct(data, files);
   }
 
-  // @Delete()
-  // @UseGuards(AuthGuard, RolesGuard)
-  // @Roles(Role.SuperAdmin)
-  // delete() {
-  //   return this.shoeService.deleteAllProduct();
-  // }
+  @Delete(':id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.SuperAdmin)
+  delete(@Param('id') id: number) {
+    return this.shoeService.deleteProduct(id);
+  }
 
   @Post('size')
   @UseGuards(AuthGuard, RolesGuard)
