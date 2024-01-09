@@ -7,6 +7,7 @@ import {
   MaxFileSizeValidator,
   Param,
   ParseFilePipe,
+  Patch,
   Post,
   UploadedFile,
   UseGuards,
@@ -58,5 +59,26 @@ export class BrandController {
   @Roles(Role.SuperAdmin)
   delete(@Param('id') id: number) {
     return this.brandService.deleteShoe(id);
+  }
+
+  @Patch(':id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.SuperAdmin)
+  @UseInterceptors(FileInterceptor('file'))
+  async update(
+    @Param('id') id: number,
+    @Body() data: CreateBrandDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: 'image/*' }),
+        ],
+        fileIsRequired: false,
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    return await this.brandService.updateBrand(id, data, file);
   }
 }

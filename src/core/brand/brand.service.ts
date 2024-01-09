@@ -5,7 +5,11 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateBrandDto } from './brand.dto';
-import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import {
+  CloudinaryResponse,
+  CloudinaryService,
+} from '../cloudinary/cloudinary.service';
+import { Brand } from '@prisma/client';
 
 @Injectable()
 export class BrandService {
@@ -52,5 +56,32 @@ export class BrandService {
       await this.cloudinaryService.destroyFile(brand.public_id);
     }
     return await this.db.brand.delete({ where: { id } });
+  }
+
+  async updateBrand(
+    id: number,
+    data: Partial<Brand>,
+    file: Express.Multer.File,
+  ): Promise<Brand> {
+    let fileImg: CloudinaryResponse;
+    const brand = await this.getBrandById(id);
+
+    if (!brand) throw new NotFoundException('brand not found');
+
+    if (file) {
+      fileImg = await this.cloudinaryService.uploadFile(file);
+      if (brand.public_id) {
+        await this.cloudinaryService.destroyFile(brand.public_id);
+      }
+    }
+
+    return this.db.brand.update({
+      where: { id },
+      data: {
+        name: data.name,
+        imgUrl: file && fileImg.secure_url,
+        public_id: file && fileImg.public_id,
+      },
+    });
   }
 }

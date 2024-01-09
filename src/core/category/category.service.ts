@@ -5,7 +5,11 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCategoryDto } from './category.dto';
-import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import {
+  CloudinaryResponse,
+  CloudinaryService,
+} from '../cloudinary/cloudinary.service';
+import { Category } from '@prisma/client';
 
 @Injectable()
 export class CategoryService {
@@ -40,8 +44,8 @@ export class CategoryService {
     return await this.db.category.create({
       data: {
         ...data,
-        public_id: fileImg ? fileImg.public_id : null,
-        imgUrl: fileImg ? fileImg.secure_url : null,
+        public_id: fileImg.public_id ?? null,
+        imgUrl: fileImg.secure_url ?? null,
       },
     });
   }
@@ -56,5 +60,32 @@ export class CategoryService {
     }
 
     return await this.db.category.delete({ where: { id } });
+  }
+
+  async updateCategory(
+    id: number,
+    data: Partial<Category>,
+    file: Express.Multer.File,
+  ): Promise<Category> {
+    let fileImg: CloudinaryResponse;
+    const category = await this.getCategoryById(id);
+
+    if (!category) throw new NotFoundException('category not found');
+
+    if (file) {
+      fileImg = await this.cloudinaryService.uploadFile(file);
+      if (category.public_id) {
+        await this.cloudinaryService.destroyFile(category.public_id);
+      }
+    }
+
+    return this.db.category.update({
+      where: { id },
+      data: {
+        name: data.name,
+        imgUrl: file && fileImg.secure_url,
+        public_id: file && fileImg.public_id,
+      },
+    });
   }
 }
