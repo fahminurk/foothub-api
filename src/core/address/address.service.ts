@@ -22,20 +22,7 @@ export class AddressService {
   }
 
   async createAddress(data: CreateAddressDto, userId: number) {
-    const city = await this.CityProvinceService.getCityById(data.city_id);
-
-    const res = await this.httpService.axiosRef.get(
-      'https://api.opencagedata.com/geocode/v1/json',
-      {
-        params: {
-          q: `${data.address}, ${city[0].city_name},${city[0].province.province}`,
-          countrycode: 'id',
-          limit: 1,
-          key: process.env.OPENCAGE_API_KEY,
-        },
-      },
-    );
-
+    const res = await this.openCage(data);
     const addressCheck = await this.getAddressUser(userId);
     const isPrimary = addressCheck.length > 0 ? data.isPrimary : true;
 
@@ -48,18 +35,16 @@ export class AddressService {
       data: {
         ...data,
         isPrimary,
-        postcal_code: city[0].postcal_code,
-        latitude: res.data.results[0].geometry.lat,
-        longitude: res.data.results[0].geometry.lng,
+        postcal_code: res.city[0].postcal_code,
+        latitude: res.openCage.data.results[0].geometry.lat,
+        longitude: res.openCage.data.results[0].geometry.lng,
         userId,
       },
     });
   }
 
   async deleteAddress(id: number, userId: number) {
-    const addressToDelete = await this.db.address.findUnique({
-      where: { id },
-    });
+    const addressToDelete = await this.db.address.findUnique({ where: { id } });
 
     if (!addressToDelete) throw new BadRequestException('address not found');
 
@@ -79,27 +64,14 @@ export class AddressService {
   }
 
   async updateAddress(id: number, data: CreateAddressDto, userId: number) {
-    const city = await this.CityProvinceService.getCityById(data.city_id);
-
-    const res = await this.httpService.axiosRef.get(
-      'https://api.opencagedata.com/geocode/v1/json',
-      {
-        params: {
-          q: `${data.address}, ${city[0].city_name},${city[0].province.province}`,
-          countrycode: 'id',
-          limit: 1,
-          key: process.env.OPENCAGE_API_KEY,
-        },
-      },
-    );
-
+    const res = await this.openCage(data);
     const checkPrimary = await this.primaryChecker(userId);
     const checkAddress = await this.db.address.findUnique({
       where: { id },
     });
 
     if (!data.isPrimary && id == checkPrimary.id) {
-      throw new BadRequestException('you need  1 default address');
+      throw new BadRequestException('you need 1 default address');
     } else if (data.isPrimary && checkPrimary.id != checkAddress.id) {
       await this.editPrimary(userId, checkPrimary.id);
     }
@@ -109,9 +81,9 @@ export class AddressService {
       data: {
         ...data,
         isPrimary: data.isPrimary,
-        postcal_code: city[0].postcal_code,
-        latitude: res.data.results[0].geometry.lat,
-        longitude: res.data.results[0].geometry.lng,
+        postcal_code: res.city[0].postcal_code,
+        latitude: res.openCage.data.results[0].geometry.lat,
+        longitude: res.openCage.data.results[0].geometry.lng,
       },
     });
   }
@@ -134,5 +106,23 @@ export class AddressService {
       where: { id, userId, isPrimary: true },
       data: { isPrimary: false },
     });
+  }
+
+  async openCage(data: CreateAddressDto) {
+    const city = await this.CityProvinceService.getCityById(data.city_id);
+
+    const openCage = await this.httpService.axiosRef.get(
+      'https://api.opencagedata.com/geocode/v1/json',
+      {
+        params: {
+          q: `${data.address}, ${city[0].city_name},${city[0].province.province}`,
+          countrycode: 'id',
+          limit: 1,
+          key: process.env.OPENCAGE_API_KEY,
+        },
+      },
+    );
+
+    return { city, openCage };
   }
 }
